@@ -58,19 +58,19 @@ export const venueService = {
 };
 
 export const eventService = {
-  // Get all events
+  // Get all events (GET /api/events)
   getAllEvents: () => api.get(''),
   
-  // Get event by ID
+  // Get event by ID (GET /api/events/{id})
   getEventById: (id) => api.get(`/${id}`),
   
-  // Book/Create new event
+  // Book/Create new event (POST /api/events/book)
   bookEvent: (eventData) => api.post('/book', eventData),
   
-  // Update event
+  // Update event (PUT /api/events/{id})
   updateEvent: (id, eventData) => api.put(`/${id}`, eventData),
   
-  // Delete event
+  // Delete event (DELETE /api/events/{id})
   deleteEvent: (id) => api.delete(`/${id}`),
 };
 

@@ -8,6 +8,7 @@ const EventList = () => {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
@@ -23,11 +24,16 @@ const EventList = () => {
 
   const fetchEvents = async () => {
     try {
+      setError('');
       const response = await eventService.getAllEvents();
-      setEvents(response.data);
-      setFilteredEvents(response.data);
+      const eventData = Array.isArray(response.data) ? response.data : [];
+      setEvents(eventData);
+      setFilteredEvents(eventData);
     } catch (error) {
       console.error('Error fetching events:', error);
+      setError('Failed to load events. Please refresh the page.');
+      setEvents([]);
+      setFilteredEvents([]);
     } finally {
       setLoading(false);
     }
@@ -52,10 +58,12 @@ const EventList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
+        setError('');
         await eventService.deleteEvent(id);
-        fetchEvents();
+        await fetchEvents();
       } catch (error) {
         console.error('Error deleting event:', error);
+        setError('Failed to delete event. Please try again.');
       }
     }
   };
@@ -86,6 +94,12 @@ const EventList = () => {
           Book Event
         </Link>
       </div>
+
+      {error && (
+        <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
+          {error}
+        </div>
+      )}
 
       <div className="filters-section card">
         <div className="search-box">

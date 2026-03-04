@@ -8,6 +8,7 @@ const VenueList = () => {
   const [venues, setVenues] = useState([]);
   const [filteredVenues, setFilteredVenues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -20,11 +21,16 @@ const VenueList = () => {
 
   const fetchVenues = async () => {
     try {
+      setError('');
       const response = await venueService.getAllVenues();
-      setVenues(response.data);
-      setFilteredVenues(response.data);
+      const venueData = Array.isArray(response.data) ? response.data : [];
+      setVenues(venueData);
+      setFilteredVenues(venueData);
     } catch (error) {
       console.error('Error fetching venues:', error);
+      setError('Failed to load venues. Please refresh the page.');
+      setVenues([]);
+      setFilteredVenues([]);
     } finally {
       setLoading(false);
     }
@@ -46,10 +52,12 @@ const VenueList = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this venue?')) {
       try {
+        setError('');
         await venueService.deleteVenue(id);
-        fetchVenues();
+        await fetchVenues();
       } catch (error) {
         console.error('Error deleting venue:', error);
+        setError('Failed to delete venue. Please try again.');
       }
     }
   };
@@ -70,6 +78,12 @@ const VenueList = () => {
           Add Venue
         </Link>
       </div>
+
+      {error && (
+        <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
+          {error}
+        </div>
+      )}
 
       <div className="filters-section card">
         <div className="search-box">

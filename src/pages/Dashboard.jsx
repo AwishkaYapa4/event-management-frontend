@@ -11,6 +11,7 @@ const Dashboard = () => {
     totalAttendees: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchStatistics();
@@ -18,13 +19,14 @@ const Dashboard = () => {
 
   const fetchStatistics = async () => {
     try {
+      setError('');
       const [eventsResponse, venuesResponse] = await Promise.all([
-        eventService.getAllEvents(),
-        venueService.getAllVenues(),
+        eventService.getAllEvents().catch(err => ({ data: [] })),
+        venueService.getAllVenues().catch(err => ({ data: [] })),
       ]);
 
-      const events = eventsResponse.data;
-      const venues = venuesResponse.data;
+      const events = Array.isArray(eventsResponse.data) ? eventsResponse.data : [];
+      const venues = Array.isArray(venuesResponse.data) ? venuesResponse.data : [];
 
       const totalAttendees = events.reduce((sum, event) => sum + (event.attendees || 0), 0);
 
@@ -35,6 +37,12 @@ const Dashboard = () => {
       });
     } catch (error) {
       console.error('Error fetching statistics:', error);
+      setError('Failed to load dashboard data. Please refresh the page.');
+      setStats({
+        totalEvents: 0,
+        totalVenues: 0,
+        totalAttendees: 0,
+      });
     } finally {
       setLoading(false);
     }
@@ -80,6 +88,12 @@ const Dashboard = () => {
           Book New Event
         </Link>
       </div>
+
+      {error && (
+        <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
+          {error}
+        </div>
+      )}
 
       <div className="stats-grid">
         {statCards.map((stat, index) => (

@@ -19,13 +19,25 @@ export default async function handler(req, res) {
     
     console.log(`Proxying ${req.method} ${url}`);
     
-    const response = await fetch(url, {
+    // Prepare fetch options
+    const fetchOptions = {
       method: req.method,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: req.method !== 'GET' && req.method !== 'DELETE' && req.body ? JSON.stringify(req.body) : undefined,
-    });
+    };
+
+    // Add body for POST, PUT, PATCH methods
+    if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body) {
+      fetchOptions.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    }
+
+    const response = await fetch(url, fetchOptions);
+
+    // Handle empty responses (DELETE often returns no content)
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return res.status(response.status).end();
+    }
 
     // Handle different response types
     const contentType = response.headers.get('content-type');
@@ -41,7 +53,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ 
       error: 'Failed to connect to backend', 
       details: error.message,
-      backend: AWS_BACKEND
+      backend: AWS_BACKEND,
+      method: req.method,
+      url: req.url
     });
   }
 }
