@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 // Event Management Service API URL
+// Using Vercel serverless functions as proxy to avoid HTTPS → HTTP mixed content issues
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'http://Event-management-service-env.eba-qrma82w3.us-east-1.elasticbeanstalk.com/api/events'  // AWS Production
-  : 'http://Event-management-service-env.eba-qrma82w3.us-east-1.elasticbeanstalk.com/api/events';  // Using AWS for development too
+  ? '/api'  // Vercel proxy functions
+  : 'http://event-management-service-env.eba-qrma82w3.us-east-1.elasticbeanstalk.com/api/events';  // Local dev
 
 const api = axios.create({
   baseURL: API_BASE_URL,
