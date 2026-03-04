@@ -39,6 +39,13 @@ export default async function handler(req, res) {
       return res.status(response.status).end();
     }
 
+    const response = await fetch(url, fetchOptions);
+
+    // Handle empty responses (DELETE often returns no content)
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return res.status(response.status).end();
+    }
+
     // Handle different response types
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
