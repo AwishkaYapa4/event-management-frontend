@@ -13,11 +13,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Extract the path after /api/
-    const apiPath = req.url.replace(/^\/api/, '');
+    // Extract the path - Vercel catch-all provides path segments in req.query.path
+    let apiPath = '';
+    if (req.query && req.query.path) {
+      // req.query.path is an array like ['venues', '7']
+      apiPath = '/' + (Array.isArray(req.query.path) ? req.query.path.join('/') : req.query.path);
+    } else {
+      // Fallback to URL parsing
+      apiPath = req.url.replace(/^\/api/, '');
+    }
+    
     const url = `${AWS_BACKEND}${apiPath}`;
     
-    console.log(`Proxying ${req.method} ${url}`);
+    console.log(`[PROXY] Method: ${req.method}`);
+    console.log(`[PROXY] Query path: ${JSON.stringify(req.query)}`);
+    console.log(`[PROXY] API Path: ${apiPath}`);
+    console.log(`[PROXY] Target URL: ${url}`);
     
     // Prepare fetch options
     const fetchOptions = {
