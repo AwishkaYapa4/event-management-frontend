@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // Event Management Service API URL
-// Using Vercel serverless functions as proxy to avoid HTTPS → HTTP mixed content issues
+// Using Vercel serverless proxy function to avoid HTTPS → HTTP mixed content issues
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? '/api'  // Vercel proxy functions
+  ? '/api/proxy'  // Vercel proxy function with query parameter
   : 'http://event-management-service-env.eba-qrma82w3.us-east-1.elasticbeanstalk.com/api/events';  // Local dev
 
 const api = axios.create({
@@ -11,11 +11,26 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Add params transformation for production (proxy needs ?path= query param)
+  paramsSerializer: process.env.NODE_ENV === 'production' 
+    ? (params) => {
+        // In production, the path will be added as ?path=...
+        return params ? new URLSearchParams(params).toString() : '';
+      }
+    : undefined
 });
 
-// Request interceptor (for future auth implementation)
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
+    // In production, convert URL path to query parameter
+    if (process.env.NODE_ENV === 'production' && config.url) {
+      // Remove leading slash and set as path query param
+      const path = config.url.replace(/^\//, '');
+      config.params = { path, ...(config.params || {}) };
+      config.url = ''; // Clear the URL path since we're using query params
+    }
+    
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
