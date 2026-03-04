@@ -15,7 +15,8 @@ export default async function handler(req, res) {
   try {
     // Get the full path from query parameter
     const targetPath = req.query.path || '';
-    const url = `${AWS_BACKEND}/${targetPath}`;
+    // Build URL - if path is empty, it points to root /api/events endpoint
+    const url = targetPath ? `${AWS_BACKEND}/${targetPath}` : AWS_BACKEND;
     
     console.log(`[PROXY] ${req.method} → ${url}`);
     

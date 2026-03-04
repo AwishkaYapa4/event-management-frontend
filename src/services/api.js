@@ -11,24 +11,24 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Add params transformation for production (proxy needs ?path= query param)
-  paramsSerializer: process.env.NODE_ENV === 'production' 
-    ? (params) => {
-        // In production, the path will be added as ?path=...
-        return params ? new URLSearchParams(params).toString() : '';
-      }
-    : undefined
 });
 
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
     // In production, convert URL path to query parameter
-    if (process.env.NODE_ENV === 'production' && config.url) {
-      // Remove leading slash and set as path query param
-      const path = config.url.replace(/^\//, '');
-      config.params = { path, ...(config.params || {}) };
-      config.url = ''; // Clear the URL path since we're using query params
+    if (process.env.NODE_ENV === 'production') {
+      // Remove leading slash from URL path
+      let path = (config.url || '').replace(/^\//, '');
+      
+      // Don't add the proxy query param if already present
+      if (!config.url?.includes('?path=')) {
+        config.params = { 
+          path: path || '',  // Empty string for root endpoint
+          ...(config.params || {}) 
+        };
+        config.url = ''; // Clear the URL path since we're using query params
+      }
     }
     
     const token = localStorage.getItem('token');
