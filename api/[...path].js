@@ -33,17 +33,22 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(url, fetchOptions);
+    
+    console.log(`Response status: ${response.status}`);
 
     // Handle empty responses (DELETE often returns no content)
     if (response.status === 204 || response.headers.get('content-length') === '0') {
       return res.status(response.status).end();
     }
-
-    const response = await fetch(url, fetchOptions);
-
-    // Handle empty responses (DELETE often returns no content)
-    if (response.status === 204 || response.headers.get('content-length') === '0') {
-      return res.status(response.status).end();
+    
+    // Handle error responses
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Backend error: ${response.status} - ${errorText}`);
+      return res.status(response.status).json({ 
+        error: `Backend returned ${response.status}`,
+        details: errorText 
+      });
     }
 
     // Handle different response types
