@@ -35,7 +35,8 @@ const VenueList = () => {
 
     if (searchTerm) {
       filtered = filtered.filter(venue =>
-        venue.name.toLowerCase().includes(searchTerm.toLowerCase())
+        venue.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (venue.location && venue.location.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -75,7 +76,7 @@ const VenueList = () => {
           <Search size={20} />
           <input
             type="text"
-            placeholder="Search by venue name..."
+            placeholder="Search by venue name or location..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -89,7 +90,9 @@ const VenueList = () => {
             <tr>
               <th>ID</th>
               <th>Name</th>
+              <th>Location</th>
               <th>Capacity</th>
+              <th>Amenities</th>
               <th>Price Per Hour</th>
               <th>Actions</th>
             </tr>
@@ -98,8 +101,10 @@ const VenueList = () => {
             {filteredVenues.map((venue) => (
               <tr key={venue.id}>
                 <td>#{venue.id}</td>
-                <td className="venue-name">{venue.name}</td>
-                <td>{venue.capacity} people</td>
+                <td>{venue.name}</td>
+                <td>{venue.location || 'N/A'}</td>
+                <td>{venue.capacity}</td>
+                <td>{venue.amenities || 'N/A'}</td>
                 <td>Rs. {venue.pricePerHour.toLocaleString()}</td>
                 <td>
                   <div className="action-buttons">

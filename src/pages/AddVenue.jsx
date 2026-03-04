@@ -10,7 +10,9 @@ const AddVenue = () => {
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
+    location: '',
     capacity: '',
+    amenities: '',
     pricePerHour: ''
   });
 
@@ -85,6 +87,22 @@ const AddVenue = () => {
             </div>
 
             <div className="form-group">
+              <label htmlFor="location" className="form-label">
+                Location <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                className="form-input"
+                required
+                placeholder="e.g., Colombo, Kandy"
+              />
+            </div>
+
+            <div className="form-group">
               <label htmlFor="capacity" className="form-label">
                 Capacity <span className="required">*</span>
               </label>
@@ -98,6 +116,21 @@ const AddVenue = () => {
                 required
                 min="1"
                 placeholder="Number of people"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amenities" className="form-label">
+                Amenities
+              </label>
+              <input
+                type="text"
+                id="amenities"
+                name="amenities"
+                value={formData.amenities}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="e.g., WiFi, AC, Parking, Catering"
               />
             </div>
 

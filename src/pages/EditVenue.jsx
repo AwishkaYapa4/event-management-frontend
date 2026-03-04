@@ -12,7 +12,9 @@ const EditVenue = () => {
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
+    location: '',
     capacity: '',
+    amenities: '',
     pricePerHour: ''
   });
 
@@ -26,7 +28,9 @@ const EditVenue = () => {
       const venue = response.data;
       setFormData({
         name: venue.name,
+        location: venue.location || '',
         capacity: venue.capacity,
+        amenities: venue.amenities || '',
         pricePerHour: venue.pricePerHour
       });
     } catch (error) {
@@ -111,6 +115,22 @@ const EditVenue = () => {
             </div>
 
             <div className="form-group">
+              <label htmlFor="location" className="form-label">
+                Location <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                className="form-input"
+                required
+                placeholder="e.g., Colombo, Kandy"
+              />
+            </div>
+
+            <div className="form-group">
               <label htmlFor="capacity" className="form-label">
                 Capacity <span className="required">*</span>
               </label>
@@ -123,6 +143,21 @@ const EditVenue = () => {
                 className="form-input"
                 required
                 min="1"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="amenities" className="form-label">
+                Amenities
+              </label>
+              <input
+                type="text"
+                id="amenities"
+                name="amenities"
+                value={formData.amenities}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="e.g., WiFi, AC, Parking, Catering"
               />
             </div>
 
