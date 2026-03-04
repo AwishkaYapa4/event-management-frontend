@@ -9,6 +9,7 @@ const VenueList = () => {
   const [filteredVenues, setFilteredVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -53,11 +54,19 @@ const VenueList = () => {
     if (window.confirm('Are you sure you want to delete this venue?')) {
       try {
         setError('');
+        setSuccess('');
+        console.log('Deleting venue ID:', id);
         await venueService.deleteVenue(id);
-        await fetchVenues();
+        setSuccess('Venue deleted successfully!');
+        // Wait a moment before refetching to ensure backend has processed
+        setTimeout(() => {
+          fetchVenues();
+          setSuccess('');
+        }, 500);
       } catch (error) {
         console.error('Error deleting venue:', error);
-        setError('Failed to delete venue. Please try again.');
+        const errorMsg = error.response?.data?.message || error.message || 'Failed to delete venue. Please try again.';
+        setError(errorMsg);
       }
     }
   };
@@ -82,6 +91,12 @@ const VenueList = () => {
       {error && (
         <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
           {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="alert alert-success" style={{ marginBottom: '1rem', backgroundColor: '#d4edda', color: '#155724', border: '1px solid #c3e6cb', padding: '0.75rem', borderRadius: '0.25rem' }}>
+          {success}
         </div>
       )}
 
@@ -117,9 +132,9 @@ const VenueList = () => {
                 <td>#{venue.id}</td>
                 <td>{venue.name}</td>
                 <td>{venue.location || 'N/A'}</td>
-                <td>{venue.capacity}</td>
+                <td>{venue.capacity || 0}</td>
                 <td>{venue.amenities || 'N/A'}</td>
-                <td>Rs. {venue.pricePerHour.toLocaleString()}</td>
+                <td>Rs. {venue.pricePerHour ? venue.pricePerHour.toLocaleString() : '0'}</td>
                 <td>
                   <div className="action-buttons">
                     <Link
